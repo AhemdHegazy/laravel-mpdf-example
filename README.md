@@ -1,66 +1,281 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+# Laravel Mpdf: Generate PDF Files with ease.
 
-## About Laravel
+Easily generate PDF files using [Laravel's Blade templates](https://laravel.com/docs/blade) and the [MPDF library](https://mpdf.github.io/). This package has been tested since Laravel 5.4.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Installation
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Run this composer command in your laravel application:
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+```
+composer require carlos-meneses/laravel-mpdf
+```
+Then change the package version from composer.json file to make custom fonts works 
+Change it From 
+```
+ "carlos-meneses/laravel-mpdf": "^2.1",
+```
+To
+```
+ "carlos-meneses/laravel-mpdf": "2.1.3",
+```
+then run 
+```
+composer update
+```
+## Tutorial Includes : 
 
-## Learning Laravel
+- Header / Footer
+- Page Number
+- Page Break
+- Arabic Support
+- Settings Config File pdf.php (Orientation,Watermark ...etc)
+- Custom Fonts
+- Example 1 : Display Table Data
+- Example 2 : Invoices PDF
+<br/>
+## Important Notes:
+To start using Laravel, add the Service Provider and the Facade to your `config/app.php`:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+> **Note:** This package supports auto-discovery features of Laravel 5.5+, You only need to manually add the service provider and alias if working on Laravel version lower then 5.5.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+```php
+'providers' => [
+    // ...
+    Meneses\LaravelMpdf\LaravelMpdfServiceProvider::class
+]
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```php
+'aliases' => [
+    // ...
+    'PDF' => Meneses\LaravelMpdf\Facades\LaravelMpdf::class
+]
+```
 
-## Laravel Sponsors
+## Basic Usage
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+To use Laravel Mpdf add something like this to one of your controllers. You can pass data to a view in `/resources/views`.
 
-### Premium Partners
+```php
+//....
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+use PDF;
 
-## Contributing
+class ReportController extends Controller 
+{
+    public function viewPdf()
+    {
+        $data = [
+            'foo' => 'bar'
+        ];
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+        $pdf = PDF::loadView('pdf.document', $data);
 
-## Code of Conduct
+        return $pdf->stream('document.pdf');
+    }
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+}
+```
 
-## Security Vulnerabilities
+## Config
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+You can use a custom file to overwrite the default configuration. Just execute `php artisan vendor:publish --tag=mpdf-config` or create `config/pdf.php` and add this:
+
+```php
+return [
+    'mode'                       => '',
+    'format'                     => 'A4',
+    'default_font_size'          => '12',
+    'default_font'               => 'sans-serif',
+    'margin_left'                => 10,
+    'margin_right'               => 10,
+    'margin_top'                 => 10,
+    'margin_bottom'              => 10,
+    'margin_header'              => 0,
+    'margin_footer'              => 0,
+    'orientation'                => 'P',
+    'title'                      => 'Laravel mPDF',
+    'author'                     => '',
+    'watermark'                  => 'AHMED HEGAZY',
+    'show_watermark'             => false,
+    'show_watermark_image'       => false,
+    'watermark_font'             => 'sans-serif',
+    'display_mode'               => 'fullpage',
+    'watermark_text_alpha'       => 0.1,
+    'watermark_image_path'       => '',
+    'watermark_image_alpha'      => 0.2,
+    'watermark_image_size'       => 'D',
+    'watermark_image_position'   => 'P',
+    'custom_font_dir'            => base_path("resources/fonts"),
+    'custom_font_data' => [
+        'cairo' => [
+            'R'  => 'Cairo-Regular.ttf',    // regular font
+            'B'  => 'Cairo-Bold.ttf',       // optional: bold font
+            'I'  => 'Cairo-Italic.ttf',     // optional: italic font
+            'BI' => 'Cairo-BoldItalic.ttf', // optional: bold-italic font,
+            'useOTL' => 0xFF,
+            'useKashida' => 75,
+        ]
+        // ...add as many as you want.
+    ],
+    'auto_language_detection'    => true,
+    'temp_dir'                   => base_path('temp'),
+];
+
+```
+
+To override this configuration on a per-file basis use the fourth parameter of the initializing call like this:
+
+```php
+// ...
+
+PDF::loadView('pdf', $data, [], [
+    'title' => 'Another Title',
+    'margin_top' => 0
+])->save($pdfFilePath);
+```
+
+## Get instance your Mpdf
+
+You can access all mpdf methods through the mpdf instance with `getMpdf` method.
+
+```php
+use PDF;
+
+$pdf = PDF::loadView('pdf.document', $data);
+$pdf->getMpdf()->AddPage(/*...*/);
+```
+
+## Headers and Footers
+
+If you want to have headers and footers that appear on every page, add them to your `<body>` tag like this:
+
+```html
+<htmlpageheader name="page-header">
+    Your Header Content
+</htmlpageheader>
+
+<htmlpagefooter name="page-footer">
+    Your Footer Content
+</htmlpagefooter>
+
+
+```
+
+
+Now you just need to define them with the name attribute in your CSS:
+
+```css
+@page {
+  header: page-header;
+  footer: page-footer;
+}
+```
+
+Inside of headers and footers `{PAGENO}` can be used to display the page number.
+```html
+<htmlpagefooter name="page-footer">
+    {PAGENO}
+</htmlpagefooter>
+```
+## Included Fonts
+
+By default you can use all the fonts [shipped with Mpdf](https://mpdf.github.io/fonts-languages/available-fonts-v6.html).
+
+## Custom Fonts
+
+You can use your own fonts in the generated PDFs. The TTF files have to be located in one folder, e.g. `resources/fonts/`. Add this to your configuration file (`/config/pdf.php`):
+
+```php
+return [
+    'custom_font_dir'  => base_path('resources/fonts/'), // don't forget the trailing slash!
+    'custom_font_data' => [
+        'examplefont' => [ // must be lowercase and snake_case
+            'R'  => 'ExampleFont-Regular.ttf',    // regular font
+            'B'  => 'ExampleFont-Bold.ttf',       // optional: bold font
+            'I'  => 'ExampleFont-Italic.ttf',     // optional: italic font
+            'BI' => 'ExampleFont-Bold-Italic.ttf' // optional: bold-italic font
+        ]
+      // ...add as many as you want.
+    ]
+];
+```
+
+Now you can use the font in CSS:
+
+```css
+body {
+  font-family: 'examplefont', sans-serif;
+}
+```
+
+## Chunk HTML
+
+For big HTML you might get `Uncaught Mpdf\MpdfException: The HTML code size is larger than pcre.backtrack_limit xxx` error, or you might just get [empty or blank result](https://mpdf.github.io/troubleshooting/known-issues.html#blank-pages-or-some-sections-missing). In these situations you can use chunk methods while you added a separator to your HTML:
+
+```php
+//....
+use PDF;
+class ReportController extends Controller 
+{
+    public function generate_pdf()
+    {
+        $data = [
+            'foo' => 'hello 1',
+            'bar' => 'hello 2'
+        ];
+        $pdf = PDF::chunkLoadView('<html-separator/>', 'pdf.document', $data);
+        return $pdf->stream('document.pdf');
+    }
+}
+```
+```html
+<div>
+    <h1>Hello World</h1>
+
+    <table>
+        <tr><td>{{ $foo }}</td></tr>
+    </table>
+    
+    <html-separator/>
+
+    <table>
+        <tr><td>{{ $bar }}</td></tr>
+    </table>
+
+    <html-separator/>
+</div>
+```
+
+## Added Support for the Macroable Trait
+You can configure the macro in the `AppServiceProvider` provider file.
+
+```php
+//...
+use Mccarlosen\LaravelMpdf\LaravelMpdf;
+
+class AppServiceProvider extends ServiceProvider
+{
+  //...
+
+    public function boot()
+    {
+        LaravelMpdf::macro('hello', function () {
+            return "Hello, World!";
+        });
+    }
+
+  //...
+}
+```
+
+Now
+
+```php
+PDF::loadView(/* ... */)->hello();
+```
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Laravel Mpdf is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT)
